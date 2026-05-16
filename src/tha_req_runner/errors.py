@@ -1,0 +1,2 @@
+class ReqError(Exception):
+    pass
