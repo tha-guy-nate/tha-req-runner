@@ -128,13 +128,13 @@ def test_parse_callable_as_static(req: ThaReq) -> None:
 
 def test_safe_call_success(req: ThaReq) -> None:
     resp = _mock_resp(200, {"id": 1})
-    result = req.safe_call(lambda: resp)
+    result = req.safe_call(lambda **_: resp)
     assert result["status"] == 200
     assert result["data"] == {"id": 1}
 
 
 def test_safe_call_exception(req: ThaReq) -> None:
-    def boom() -> requests.Response:
+    def boom(**_: object) -> requests.Response:
         raise ConnectionError("refused")
 
     result = req.safe_call(boom)
@@ -150,9 +150,89 @@ def test_safe_call_passes_args_and_kwargs(req: ThaReq) -> None:
         return _mock_resp(200, {})
 
     req.safe_call(fn, "https://example.com", headers={"X-Key": "v"})
-    assert calls[0] == ("https://example.com", {"headers": {"X-Key": "v"}})
+    assert calls[0][0] == "https://example.com"
+    assert calls[0][1]["headers"] == {"X-Key": "v"}
+    assert "timeout" in calls[0][1]
 
 
 def test_safe_call_stores_nothing_on_instance(req: ThaReq) -> None:
     req.safe_call(lambda: _mock_resp(200, {}))
     assert not hasattr(req, "result")
+
+
+# --- default headers ---
+
+def test_get_session_default_headers() -> None:
+    req = ThaReq()
+    session = req.get_session(headers={"Authorization": "Bearer tok", "X-Custom": "val"})
+    assert session.headers["Authorization"] == "Bearer tok"
+    assert session.headers["X-Custom"] == "val"
+
+
+def test_get_session_no_headers_does_not_error(req: ThaReq) -> None:
+    session = req.get_session()
+    assert "Authorization" not in session.headers
+
+
+# --- timeout ---
+
+def test_get_session_default_timeout(req: ThaReq) -> None:
+    req.get_session()
+    assert req.timeout == 30
+
+
+def test_get_session_custom_timeout() -> None:
+    req = ThaReq()
+    req.get_session(timeout=10)
+    assert req.timeout == 10
+
+
+def test_safe_call_injects_timeout(req: ThaReq) -> None:
+    req.get_session(timeout=7)
+    captured: list[dict[str, object]] = []
+
+    def fn(**kwargs: object) -> requests.Response:
+        captured.append(dict(kwargs))
+        return _mock_resp(200, {})
+
+    req.safe_call(fn)
+    assert captured[0]["timeout"] == 7
+
+
+def test_safe_call_caller_timeout_overrides(req: ThaReq) -> None:
+    req.get_session(timeout=7)
+    captured: list[dict[str, object]] = []
+
+    def fn(**kwargs: object) -> requests.Response:
+        captured.append(dict(kwargs))
+        return _mock_resp(200, {})
+
+    req.safe_call(fn, timeout=99)
+    assert captured[0]["timeout"] == 99
+
+
+# --- reset_session / close_session ---
+
+def test_reset_session_creates_new_session(req: ThaReq) -> None:
+    s1 = req.get_session()
+    req.reset_session()
+    s2 = req.get_session()
+    assert s1 is not s2
+
+
+def test_reset_session_no_session_does_not_error(req: ThaReq) -> None:
+    req.reset_session()  # called before get_session — should not raise
+
+
+def test_close_session_creates_new_session(req: ThaReq) -> None:
+    s1 = req.get_session()
+    req.close_session()
+    s2 = req.get_session()
+    assert s1 is not s2
+
+
+def test_reset_clears_timeout(req: ThaReq) -> None:
+    req.get_session(timeout=5)
+    req.reset_session()
+    req.get_session(timeout=15)
+    assert req.timeout == 15
