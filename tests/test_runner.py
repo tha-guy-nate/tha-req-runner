@@ -236,3 +236,71 @@ def test_reset_clears_timeout(req: ThaReq) -> None:
     req.reset_session()
     req.get_session(timeout=15)
     assert req.timeout == 15
+
+
+# --- httpx backend ---
+
+import httpx
+
+
+def test_httpx_backend_returns_client() -> None:
+    req = ThaReq(backend="httpx")
+    assert isinstance(req.get_session(), httpx.Client)
+
+
+def test_httpx_backend_same_instance_per_thread() -> None:
+    req = ThaReq(backend="httpx")
+    assert req.get_session() is req.get_session()
+
+
+def test_httpx_backend_thread_local() -> None:
+    req = ThaReq(backend="httpx")
+    sessions: list[httpx.Client] = []
+
+    def capture() -> None:
+        sessions.append(req.get_session())
+
+    t1 = threading.Thread(target=capture)
+    t2 = threading.Thread(target=capture)
+    t1.start(); t2.start()
+    t1.join(); t2.join()
+
+    assert sessions[0] is not sessions[1]
+
+
+def test_httpx_backend_default_headers() -> None:
+    req = ThaReq(backend="httpx")
+    client = req.get_session(headers={"Authorization": "Bearer tok"})
+    assert client.headers["authorization"] == "Bearer tok"
+
+
+def test_httpx_backend_reset_session() -> None:
+    req = ThaReq(backend="httpx")
+    c1 = req.get_session()
+    req.reset_session()
+    c2 = req.get_session()
+    assert c1 is not c2
+
+
+def test_httpx_parse_response_success() -> None:
+    resp = MagicMock(spec=httpx.Response)
+    resp.status_code = 200
+    resp.json.return_value = {"ok": True}
+    result = ThaReq.parse_response(resp)
+    assert result["status"] == 200
+    assert result["data"] == {"ok": True}
+    assert result["message"] is None
+
+
+def test_httpx_parse_response_exception_with_response() -> None:
+    raw = MagicMock(spec=httpx.Response)
+    raw.status_code = 403
+    exc = httpx.HTTPStatusError("403", request=MagicMock(), response=raw)
+    result = ThaReq.parse_response(exc)
+    assert result["status"] == 403
+    assert result["raw_response"] is raw
+
+
+def test_requests_default_backend() -> None:
+    req = ThaReq()
+    assert isinstance(req.get_session(), requests.Session)

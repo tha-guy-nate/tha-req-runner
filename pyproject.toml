@@ -1,6 +1,6 @@
 [project]
 name = "tha-req-runner"
-version = "0.1.2"
+version = "0.2.0"
 description = "A Tabular Helper API library that wraps requests with thread-safe session reuse, automatic retries, and a normalized response dict."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,7 +15,8 @@ classifiers = [
 dependencies = ["requests"]
 
 [project.optional-dependencies]
-dev = ["pytest", "ruff", "mypy"]
+httpx = ["httpx"]
+dev = ["pytest", "ruff", "mypy", "httpx"]
 
 [build-system]
 requires = ["hatchling"]
