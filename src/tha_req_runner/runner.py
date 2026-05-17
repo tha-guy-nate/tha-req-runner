@@ -78,9 +78,15 @@ class ThaReq:
             valid_types = (requests.Response, httpx.Response) if _HTTPX_AVAILABLE else (requests.Response,)
             if not isinstance(raw, valid_types):
                 raw = None
+            data: Any = None
+            if raw is not None:
+                try:
+                    data = raw.json()
+                except Exception:
+                    pass
             return {
                 "status": raw.status_code if raw is not None else None,
-                "data": None,
+                "data": data,
                 "message": str(result),
                 "raw_response": raw,
             }
@@ -103,6 +109,8 @@ class ThaReq:
     ) -> dict[str, Any]:
         kwargs.setdefault("timeout", self.timeout)
         try:
-            return self.parse_response(fn(*args, **kwargs))
+            resp = fn(*args, **kwargs)
+            resp.raise_for_status()
+            return self.parse_response(resp)
         except Exception as exc:
             return self.parse_response(exc)

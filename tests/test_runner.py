@@ -116,7 +116,16 @@ def test_parse_exception_with_response() -> None:
     result = ThaReq.parse_response(exc)
     assert result["status"] == 401
     assert result["raw_response"] is raw
-    assert result["data"] is None
+    assert result["data"] is None  # no JSON body on this mock
+
+
+def test_parse_exception_with_response_json_body() -> None:
+    raw = _mock_resp(422, {"detail": "field required"})
+    exc = requests.HTTPError("422 Unprocessable Entity", response=raw)
+    result = ThaReq.parse_response(exc)
+    assert result["status"] == 422
+    assert result["data"] == {"detail": "field required"}
+    assert "422" in result["message"]
 
 
 def test_parse_callable_as_static(req: ThaReq) -> None:
@@ -158,6 +167,23 @@ def test_safe_call_passes_args_and_kwargs(req: ThaReq) -> None:
 def test_safe_call_stores_nothing_on_instance(req: ThaReq) -> None:
     req.safe_call(lambda: _mock_resp(200, {}))
     assert not hasattr(req, "result")
+
+
+def test_safe_call_raises_for_status(req: ThaReq) -> None:
+    resp = _mock_resp(422, {"detail": "field required"})
+    resp.raise_for_status.side_effect = requests.HTTPError("422", response=resp)
+    result = req.safe_call(lambda **_: resp)
+    assert result["status"] == 422
+    assert result["data"] == {"detail": "field required"}
+    assert result["message"] is not None
+
+
+def test_safe_call_200_does_not_raise(req: ThaReq) -> None:
+    resp = _mock_resp(200, {"id": 1})
+    resp.raise_for_status.return_value = None
+    result = req.safe_call(lambda **_: resp)
+    assert result["status"] == 200
+    assert result["message"] is None
 
 
 # --- default headers ---
