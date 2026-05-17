@@ -140,6 +140,14 @@ result = req.safe_call(session.get, url, timeout=5)  # override per-call
 | HTTP/2 | No | Yes |
 | Async support | No | Yes (use `httpx.AsyncClient` directly) |
 
+## Alternatives
+
+This library is intentionally limited in scope — it provides a thin, thread-safe wrapper around `requests` or `httpx` with automatic retries and a normalized response dict. If you need more control:
+
+- [**httpx**](https://www.python-httpx.org) — modern HTTP client with async support and HTTP/2 built in; use directly if you don't need the session wrapper or normalized response shape
+- [**requests**](https://requests.readthedocs.io) — the underlying sync HTTP library; sufficient on its own for simple, single-threaded use
+- [**tenacity**](https://tenacity.readthedocs.io) — standalone retry library that wraps any function; more configurable than urllib3's built-in retry for complex retry strategies
+
 ## Used by
 
 - `tha-edfi-runner` — uses `ThaReq` as its HTTP transport layer
