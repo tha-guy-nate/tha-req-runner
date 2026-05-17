@@ -26,11 +26,11 @@ client = req.get_session()
 
 # safe_call wraps the try/except for you — same API regardless of backend
 result = req.safe_call(session.get, "https://api.example.com/students", params={"limit": 100})
-# {"status": 200, "data": [...], "message": None, "raw_response": <Response>}
+# {"status": None, "code": 200, "data": [...], "message": None, "raw_response": <Response>}
 
 # network errors return the same shape — no try/except needed
 result = req.safe_call(session.get, "https://unreachable.example.com")
-# {"status": None, "data": None, "message": "Connection refused", "raw_response": None}
+# {"status": "error", "code": None, "data": None, "message": "Connection refused", "raw_response": None}
 ```
 
 ## Response dict
@@ -39,7 +39,8 @@ Every call returns the same shape whether it succeeded or raised:
 
 | Key | Type | Description |
 |---|---|---|
-| `status` | `int \| None` | HTTP status code, or `None` on network error |
+| `status` | `"error" \| None` | `"error"` on any failure (HTTP error or network error). `None` on success |
+| `code` | `int \| None` | HTTP status code, or `None` on network error |
 | `data` | `object` | Parsed JSON body. Populated on success **and** on HTTP errors if the API returned a JSON error body |
 | `message` | `str \| None` | HTTP error or exception message. `None` on success |
 | `raw_response` | `Response \| None` | The raw response object (`requests.Response` or `httpx.Response`) |
@@ -48,13 +49,13 @@ Every call returns the same shape whether it succeeded or raised:
 
 ```python
 # 200 → success path
-{"status": 200, "data": {"id": 1}, "message": None, "raw_response": <Response>}
+{"status": None, "code": 200, "data": {"id": 1}, "message": None, "raw_response": <Response>}
 
 # 422 with JSON error body → error path, data preserved
-{"status": 422, "data": {"detail": "field required"}, "message": "422 Unprocessable Entity", "raw_response": <Response>}
+{"status": "error", "code": 422, "data": {"detail": "field required"}, "message": "422 Unprocessable Entity", "raw_response": <Response>}
 
-# network error → no status or data
-{"status": None, "data": None, "message": "Connection refused", "raw_response": None}
+# network error → no code or data
+{"status": "error", "code": None, "data": None, "message": "Connection refused", "raw_response": None}
 ```
 
 ## API

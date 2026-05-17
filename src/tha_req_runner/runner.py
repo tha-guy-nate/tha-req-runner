@@ -73,30 +73,28 @@ class ThaReq:
 
     @staticmethod
     def parse_response(result: Any) -> dict[str, Any]:
+        def _try_json(obj: Any) -> Any:
+            try:
+                return obj.json()
+            except Exception:
+                return None
+
         if isinstance(result, Exception):
             raw = getattr(result, "response", None)
             valid_types = (requests.Response, httpx.Response) if _HTTPX_AVAILABLE else (requests.Response,)
             if not isinstance(raw, valid_types):
                 raw = None
-            data: Any = None
-            if raw is not None:
-                try:
-                    data = raw.json()
-                except Exception:
-                    pass
             return {
-                "status": raw.status_code if raw is not None else None,
-                "data": data,
+                "status": "error",
+                "code": raw.status_code if raw is not None else None,
+                "data": _try_json(raw) if raw is not None else None,
                 "message": str(result),
                 "raw_response": raw,
             }
-        try:
-            data: Any = result.json()
-        except Exception:
-            data = None
         return {
-            "status": result.status_code,
-            "data": data,
+            "status": None,
+            "code": result.status_code,
+            "data": _try_json(result),
             "message": None,
             "raw_response": result,
         }

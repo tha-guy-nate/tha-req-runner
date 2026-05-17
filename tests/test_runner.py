@@ -87,7 +87,8 @@ def test_get_session_mounts_http_and_https(req: ThaReq) -> None:
 def test_parse_success_json() -> None:
     resp = _mock_resp(200, {"id": 1})
     result = ThaReq.parse_response(resp)
-    assert result["status"] == 200
+    assert result["status"] is None
+    assert result["code"] == 200
     assert result["data"] == {"id": 1}
     assert result["message"] is None
     assert result["raw_response"] is resp
@@ -96,7 +97,8 @@ def test_parse_success_json() -> None:
 def test_parse_success_non_json() -> None:
     resp = _mock_resp(200)
     result = ThaReq.parse_response(resp)
-    assert result["status"] == 200
+    assert result["status"] is None
+    assert result["code"] == 200
     assert result["data"] is None
     assert result["message"] is None
 
@@ -104,7 +106,8 @@ def test_parse_success_non_json() -> None:
 def test_parse_exception_no_response() -> None:
     exc = ConnectionError("timed out")
     result = ThaReq.parse_response(exc)
-    assert result["status"] is None
+    assert result["status"] == "error"
+    assert result["code"] is None
     assert result["data"] is None
     assert "timed out" in result["message"]
     assert result["raw_response"] is None
@@ -114,7 +117,8 @@ def test_parse_exception_with_response() -> None:
     raw = _mock_resp(401)
     exc = requests.HTTPError("401 Unauthorized", response=raw)
     result = ThaReq.parse_response(exc)
-    assert result["status"] == 401
+    assert result["status"] == "error"
+    assert result["code"] == 401
     assert result["raw_response"] is raw
     assert result["data"] is None  # no JSON body on this mock
 
@@ -123,14 +127,16 @@ def test_parse_exception_with_response_json_body() -> None:
     raw = _mock_resp(422, {"detail": "field required"})
     exc = requests.HTTPError("422 Unprocessable Entity", response=raw)
     result = ThaReq.parse_response(exc)
-    assert result["status"] == 422
+    assert result["status"] == "error"
+    assert result["code"] == 422
     assert result["data"] == {"detail": "field required"}
     assert "422" in result["message"]
 
 
 def test_parse_callable_as_static(req: ThaReq) -> None:
     result = req.parse_response(_mock_resp(204))
-    assert result["status"] == 204
+    assert result["status"] is None
+    assert result["code"] == 204
 
 
 # --- safe_call ---
@@ -138,7 +144,8 @@ def test_parse_callable_as_static(req: ThaReq) -> None:
 def test_safe_call_success(req: ThaReq) -> None:
     resp = _mock_resp(200, {"id": 1})
     result = req.safe_call(lambda **_: resp)
-    assert result["status"] == 200
+    assert result["status"] is None
+    assert result["code"] == 200
     assert result["data"] == {"id": 1}
 
 
@@ -147,7 +154,8 @@ def test_safe_call_exception(req: ThaReq) -> None:
         raise ConnectionError("refused")
 
     result = req.safe_call(boom)
-    assert result["status"] is None
+    assert result["status"] == "error"
+    assert result["code"] is None
     assert "refused" in result["message"]
 
 
@@ -173,7 +181,8 @@ def test_safe_call_raises_for_status(req: ThaReq) -> None:
     resp = _mock_resp(422, {"detail": "field required"})
     resp.raise_for_status.side_effect = requests.HTTPError("422", response=resp)
     result = req.safe_call(lambda **_: resp)
-    assert result["status"] == 422
+    assert result["status"] == "error"
+    assert result["code"] == 422
     assert result["data"] == {"detail": "field required"}
     assert result["message"] is not None
 
@@ -182,7 +191,8 @@ def test_safe_call_200_does_not_raise(req: ThaReq) -> None:
     resp = _mock_resp(200, {"id": 1})
     resp.raise_for_status.return_value = None
     result = req.safe_call(lambda **_: resp)
-    assert result["status"] == 200
+    assert result["status"] is None
+    assert result["code"] == 200
     assert result["message"] is None
 
 
@@ -313,7 +323,8 @@ def test_httpx_parse_response_success() -> None:
     resp.status_code = 200
     resp.json.return_value = {"ok": True}
     result = ThaReq.parse_response(resp)
-    assert result["status"] == 200
+    assert result["status"] is None
+    assert result["code"] == 200
     assert result["data"] == {"ok": True}
     assert result["message"] is None
 
@@ -323,7 +334,8 @@ def test_httpx_parse_response_exception_with_response() -> None:
     raw.status_code = 403
     exc = httpx.HTTPStatusError("403", request=MagicMock(), response=raw)
     result = ThaReq.parse_response(exc)
-    assert result["status"] == 403
+    assert result["status"] == "error"
+    assert result["code"] == 403
     assert result["raw_response"] is raw
 
 
