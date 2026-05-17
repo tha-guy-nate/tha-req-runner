@@ -40,9 +40,22 @@ Every call returns the same shape whether it succeeded or raised:
 | Key | Type | Description |
 |---|---|---|
 | `status` | `int \| None` | HTTP status code, or `None` on network error |
-| `data` | `object` | Parsed JSON body, or `None` if not JSON |
-| `message` | `str \| None` | Exception message on error, otherwise `None` |
+| `data` | `object` | Parsed JSON body. Populated on success **and** on HTTP errors if the API returned a JSON error body |
+| `message` | `str \| None` | HTTP error or exception message. `None` on success |
 | `raw_response` | `Response \| None` | The raw response object (`requests.Response` or `httpx.Response`) |
+
+`safe_call` automatically calls `raise_for_status()`, so 4xx/5xx responses are treated as errors:
+
+```python
+# 200 → success path
+{"status": 200, "data": {"id": 1}, "message": None, "raw_response": <Response>}
+
+# 422 with JSON error body → error path, data preserved
+{"status": 422, "data": {"detail": "field required"}, "message": "422 Unprocessable Entity", "raw_response": <Response>}
+
+# network error → no status or data
+{"status": None, "data": None, "message": "Connection refused", "raw_response": None}
+```
 
 ## API
 
@@ -97,7 +110,7 @@ Normalizes a response object or a caught exception into a consistent dict. Works
 req.safe_call(fn, *args, **kwargs) -> dict[str, Any]
 ```
 
-Calls `fn(*args, **kwargs)`, catches any exception, and returns a normalized response dict. Automatically injects the session `timeout` unless the caller provides one.
+Calls `fn(*args, **kwargs)`, calls `raise_for_status()` on the response, catches any exception, and returns a normalized response dict. Automatically injects the session `timeout` unless the caller provides one. JSON error bodies from 4xx/5xx responses are preserved in `data`.
 
 ```python
 result = req.safe_call(session.get, url, params={"limit": 100})
