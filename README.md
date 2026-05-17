@@ -148,6 +148,8 @@ This library is intentionally limited in scope — it provides a thin, thread-sa
 - [**requests**](https://requests.readthedocs.io) — the underlying sync HTTP library; sufficient on its own for simple, single-threaded use
 - [**tenacity**](https://tenacity.readthedocs.io) — standalone retry library that wraps any function; more configurable than urllib3's built-in retry for complex retry strategies
 
+Choose this library when you need thread-safe sessions, automatic retries, and a normalized response dict that fits the `tha-*` error pattern — none of the alternatives give you all three out of the box.
+
 ## Used by
 
 - `tha-edfi-runner` — uses `ThaReq` as its HTTP transport layer
