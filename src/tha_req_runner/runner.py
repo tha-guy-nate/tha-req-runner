@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import threading
 from collections.abc import Collection
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Literal, cast
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -71,7 +71,7 @@ class ThaReq:
 
     @property
     def timeout(self) -> float:
-        return getattr(self._local, "timeout", _DEFAULT_TIMEOUT)  # type: ignore[no-any-return]
+        return cast(float, getattr(self._local, "timeout", _DEFAULT_TIMEOUT))
 
     @staticmethod
     def parse_response(result: Any) -> dict[str, Any]:
