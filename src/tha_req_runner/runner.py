@@ -10,6 +10,7 @@ from urllib3.util.retry import Retry
 
 try:
     import httpx
+
     _HTTPX_AVAILABLE = True
 except ImportError:
     _HTTPX_AVAILABLE = False
@@ -31,7 +32,8 @@ class ThaReq:
         self,
         *,
         status_forcelist: tuple[int, ...] = _DEFAULT_STATUS_FORCELIST,  # requests only
-        allowed_methods: Collection[str] | None = None,  # requests only; None → urllib3 safe-method default
+        allowed_methods: Collection[str]
+        | None = None,  # requests only; None → urllib3 safe-method default
         headers: dict[str, str] | None = None,
         timeout: float = _DEFAULT_TIMEOUT,
     ) -> Any:
@@ -81,7 +83,9 @@ class ThaReq:
 
         if isinstance(result, Exception):
             raw = getattr(result, "response", None)
-            valid_types = (requests.Response, httpx.Response) if _HTTPX_AVAILABLE else (requests.Response,)
+            valid_types = (
+                (requests.Response, httpx.Response) if _HTTPX_AVAILABLE else (requests.Response,)
+            )
             if not isinstance(raw, valid_types):
                 raw = None
             return {

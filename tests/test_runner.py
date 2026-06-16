@@ -1,13 +1,14 @@
 import threading
 from unittest.mock import MagicMock
 
-import pytest
+import httpx
 import requests
 
 from tha_req_runner import ThaReq
 
 
 # --- helpers ---
+
 
 def _mock_resp(status_code: int = 200, json_data: object = None) -> MagicMock:
     resp = MagicMock(spec=requests.Response)
@@ -20,6 +21,7 @@ def _mock_resp(status_code: int = 200, json_data: object = None) -> MagicMock:
 
 
 # --- get_session ---
+
 
 def test_get_session_returns_session(req: ThaReq) -> None:
     assert isinstance(req.get_session(), requests.Session)
@@ -66,7 +68,9 @@ def test_get_session_custom_status_forcelist() -> None:
 
 def test_get_session_allowed_methods_frozenset() -> None:
     req = ThaReq()
-    adapter = req.get_session(allowed_methods=frozenset(["GET", "POST"])).get_adapter("https://example.com")
+    adapter = req.get_session(allowed_methods=frozenset(["GET", "POST"])).get_adapter(
+        "https://example.com"
+    )
     assert "POST" in adapter.max_retries.allowed_methods
 
 
@@ -83,6 +87,7 @@ def test_get_session_mounts_http_and_https(req: ThaReq) -> None:
 
 
 # --- parse_response ---
+
 
 def test_parse_success_json() -> None:
     resp = _mock_resp(200, {"id": 1})
@@ -141,6 +146,7 @@ def test_parse_callable_as_static(req: ThaReq) -> None:
 
 # --- safe_call ---
 
+
 def test_safe_call_success(req: ThaReq) -> None:
     resp = _mock_resp(200, {"id": 1})
     result = req.safe_call(lambda **_: resp)
@@ -198,6 +204,7 @@ def test_safe_call_200_does_not_raise(req: ThaReq) -> None:
 
 # --- default headers ---
 
+
 def test_get_session_default_headers() -> None:
     req = ThaReq()
     session = req.get_session(headers={"Authorization": "Bearer tok", "X-Custom": "val"})
@@ -211,6 +218,7 @@ def test_get_session_no_headers_does_not_error(req: ThaReq) -> None:
 
 
 # --- timeout ---
+
 
 def test_get_session_default_timeout(req: ThaReq) -> None:
     req.get_session()
@@ -249,6 +257,7 @@ def test_safe_call_caller_timeout_overrides(req: ThaReq) -> None:
 
 # --- reset_session / close_session ---
 
+
 def test_reset_session_creates_new_session(req: ThaReq) -> None:
     s1 = req.get_session()
     req.reset_session()
@@ -276,8 +285,6 @@ def test_reset_clears_timeout(req: ThaReq) -> None:
 
 # --- httpx backend ---
 
-import httpx
-
 
 def test_httpx_backend_returns_client() -> None:
     req = ThaReq(backend="httpx")
@@ -298,8 +305,10 @@ def test_httpx_backend_thread_local() -> None:
 
     t1 = threading.Thread(target=capture)
     t2 = threading.Thread(target=capture)
-    t1.start(); t2.start()
-    t1.join(); t2.join()
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
 
     assert sessions[0] is not sessions[1]
 
