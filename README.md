@@ -1,6 +1,9 @@
 # tha-req-runner
 
 [![CI](https://github.com/tha-guy-nate/tha-req-runner/actions/workflows/ci.yml/badge.svg)](https://github.com/tha-guy-nate/tha-req-runner/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/tha-req-runner)](https://pypi.org/project/tha-req-runner/)
+[![Python](https://img.shields.io/pypi/pyversions/tha-req-runner)](https://pypi.org/project/tha-req-runner/)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 A small Python library that provides a thread-safe HTTP session with automatic retries and a normalized response parser. Supports both `requests` (default) and `httpx` backends. Intended as the HTTP transport layer for other `tha-*` runners.
 
