@@ -3,5 +3,5 @@
 from .errors import ReqError
 from .runner import ThaReq
 
-__version__ = "0.2.3"
+__version__ = "0.2.5"
 __all__ = ["ReqError", "ThaReq"]

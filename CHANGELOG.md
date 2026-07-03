@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-07-03
+### Added
+- `deptry` dependency check to pre-commit hook and CI.
+- `urllib3` as an explicit dependency — it was imported directly (`urllib3.util.retry.Retry`) but only declared transitively via `requests`, caught by the new deptry check.
+### Changed
+- PyPI/pre-commit badges and Changelog URL added to README/pyproject.toml (previously bumped to 0.2.4 in pyproject.toml only, without a matching `__init__.py` bump or release — folded into this release).
+
 ## [0.2.3] - 2026-06-16
 ### Added
 - Python 3.13 and 3.14 classifier and CI support.
