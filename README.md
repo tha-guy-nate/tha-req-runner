@@ -1,6 +1,7 @@
 # tha-req-runner
 
 [![CI](https://github.com/tha-guy-nate/tha-req-runner/actions/workflows/ci.yml/badge.svg)](https://github.com/tha-guy-nate/tha-req-runner/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/tha-guy-nate/tha-req-runner/graph/badge.svg)](https://codecov.io/gh/tha-guy-nate/tha-req-runner)
 [![PyPI](https://img.shields.io/pypi/v/tha-req-runner)](https://pypi.org/project/tha-req-runner/)
 [![Python](https://img.shields.io/pypi/pyversions/tha-req-runner)](https://pypi.org/project/tha-req-runner/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
