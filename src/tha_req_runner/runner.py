@@ -12,7 +12,7 @@ try:
     import httpx
 
     _HTTPX_AVAILABLE = True
-except ImportError:
+except ImportError:  # pragma: no cover
     _HTTPX_AVAILABLE = False
 
 _DEFAULT_RETRIES = 3

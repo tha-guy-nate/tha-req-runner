@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-07-04
+### Fixed
+- Test coverage gap in `httpx` backend: added a test for the `ImportError` raised when `backend="httpx"` is requested but `httpx` isn't installed. The unreachable module-level import-fallback branch is now marked `pragma: no cover`. Coverage is now 100%.
+
 ## [0.2.5] - 2026-07-03
 ### Added
 - `deptry` dependency check to pre-commit hook and CI.
