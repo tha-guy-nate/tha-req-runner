@@ -2,9 +2,10 @@ import threading
 from unittest.mock import MagicMock
 
 import httpx
+import pytest
 import requests
 
-from tha_req_runner import ThaReq
+from tha_req_runner import ThaReq, runner
 
 
 # --- helpers ---
@@ -284,6 +285,12 @@ def test_reset_clears_timeout(req: ThaReq) -> None:
 
 
 # --- httpx backend ---
+
+
+def test_httpx_backend_raises_when_httpx_unavailable(monkeypatch) -> None:
+    monkeypatch.setattr(runner, "_HTTPX_AVAILABLE", False)
+    with pytest.raises(ImportError, match="httpx is not installed"):
+        ThaReq(backend="httpx")
 
 
 def test_httpx_backend_returns_client() -> None:
