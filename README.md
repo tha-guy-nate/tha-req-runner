@@ -7,7 +7,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 [![wheel size](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fpypi.org%2Fpypi%2Ftha-req-runner%2Fjson&label=wheel%20size&query=%24.urls%5B0%5D.size&suffix=%20B)](https://pypi.org/project/tha-req-runner/#files)
 
-A small Python library that provides a thread-safe HTTP session with automatic retries and a normalized response parser. Supports both `requests` (default) and `httpx` backends. Intended as the HTTP transport layer for other `tha-*` runners.
+A Tabular Helper API library that wraps requests/httpx with thread-safe session reuse, automatic retries, and a normalized response dict. Supports both `requests` (default) and `httpx` backends. Intended as the HTTP transport layer for other `tha-*` runners.
 
 ## Install
 

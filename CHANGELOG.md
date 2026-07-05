@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-07-04
+### Fixed
+- `pyproject.toml` description still said "wraps requests" only, stale since httpx backend support shipped — now says "wraps requests/httpx" to match the GitHub repo description. Also fixed the README's opening line to lead with the family-standard "A Tabular Helper API library that..." description instead of a divergent one-off wording, and added `httpx` to `keywords`.
+
 ## [0.2.6] - 2026-07-04
 ### Fixed
 - Test coverage gap in `httpx` backend: added a test for the `ImportError` raised when `backend="httpx"` is requested but `httpx` isn't installed. The unreachable module-level import-fallback branch is now marked `pragma: no cover`. Coverage is now 100%.
