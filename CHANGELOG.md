@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8] - 2026-08-21
+### Fixed
+- Re-locked transitive `pip` (pulled in via `deptry` -> `pip-api`) from `26.1.2` to `26.2.1`, resolving a known CVE (PYSEC-2026-3721) flagged by `pip-audit`.
+- `src/tha_req_runner/__init__.py`'s `__version__` was still `0.2.6`, stuck one release behind `pyproject.toml` (which reached `0.2.7` on PyPI in #21) since the two were never bumped together for that release. Folded the correction into this release, matching the precedent set in 0.2.5.
+
 ## [0.2.7] - 2026-07-04
 ### Fixed
 - `pyproject.toml` description still said "wraps requests" only, stale since httpx backend support shipped — now says "wraps requests/httpx" to match the GitHub repo description. Also fixed the README's opening line to lead with the family-standard "A Tabular Helper API library that..." description instead of a divergent one-off wording, and added `httpx` to `keywords`.
