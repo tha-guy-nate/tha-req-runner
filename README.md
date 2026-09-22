@@ -7,13 +7,13 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 [![wheel size](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fpypi.org%2Fpypi%2Ftha-req-runner%2Fjson&label=wheel%20size&query=%24.urls%5B0%5D.size&suffix=%20B)](https://pypi.org/project/tha-req-runner/#files)
 
-A Tabular Helper API library that wraps requests/httpx with thread-safe session reuse, automatic retries, and a normalized response dict. Supports both `requests` (default) and `httpx` backends. Intended as the HTTP transport layer for other `tha-*` runners.
+A Tabular Helper API library that wraps requests/httpx2 with thread-safe session reuse, automatic retries, and a normalized response dict. Supports both `requests` (default) and `httpx2` backends. Intended as the HTTP transport layer for other `tha-*` runners.
 
 ## Install
 
 ```bash
-pip install tha-req-runner           # requests backend (default)
-pip install tha-req-runner[httpx]    # adds httpx backend support
+pip install tha-req-runner            # requests backend (default)
+pip install tha-req-runner[httpx2]    # adds httpx2 backend support
 ```
 
 ## Quick start
@@ -25,8 +25,8 @@ from tha_req_runner import ThaReq
 req = ThaReq()
 session = req.get_session()
 
-# httpx backend
-req = ThaReq(backend="httpx")
+# httpx2 backend
+req = ThaReq(backend="httpx2")
 client = req.get_session()
 
 # safe_call wraps the try/except for you — same API regardless of backend
@@ -48,7 +48,7 @@ Every call returns the same shape whether it succeeded or raised:
 | `code` | `int \| None` | HTTP status code, or `None` on network error |
 | `data` | `object` | Parsed JSON body. Populated on success **and** on HTTP errors if the API returned a JSON error body |
 | `message` | `str \| None` | HTTP error or exception message. `None` on success |
-| `raw_response` | `Response \| None` | The raw response object (`requests.Response` or `httpx.Response`) |
+| `raw_response` | `Response \| None` | The raw response object (`requests.Response` or `httpx2.Response`) |
 
 `safe_call` automatically calls `raise_for_status()`, so 4xx/5xx responses are treated as errors:
 
@@ -68,10 +68,10 @@ Every call returns the same shape whether it succeeded or raised:
 ### `ThaReq`
 
 ```python
-ThaReq(*, backend: Literal["requests", "httpx"] = "requests")
+ThaReq(*, backend: Literal["requests", "httpx2"] = "requests")
 ```
 
-`backend="httpx"` requires `pip install tha-req-runner[httpx]`.
+`backend="httpx2"` requires `pip install tha-req-runner[httpx2]`.
 
 ### `req.get_session()`
 
@@ -82,7 +82,7 @@ req.get_session(
     allowed_methods: Collection[str] | None = None,             # requests only
     headers: dict[str, str] | None = None,
     timeout: float = 30,
-) -> requests.Session | httpx.Client
+) -> requests.Session | httpx2.Client
 ```
 
 Returns a session configured with automatic retries. Config is applied only on the **first call per thread** — subsequent calls on the same thread return the cached session regardless of args. Two `ThaReq` instances never share a session.
@@ -96,7 +96,7 @@ session = req.get_session(
 )
 ```
 
-> **httpx note**: `status_forcelist` and `allowed_methods` are ignored for the httpx backend. httpx retry is connection-level only (no status-based retry).
+> **httpx2 note**: `status_forcelist` and `allowed_methods` are ignored for the httpx2 backend. httpx2 retry is connection-level only (no status-based retry).
 
 ### `req.reset_session()` / `req.close_session()`
 
@@ -108,7 +108,7 @@ Closes and discards the current thread's session. The next `get_session()` call 
 ThaReq.parse_response(result) -> dict[str, Any]
 ```
 
-Normalizes a response object or a caught exception into a consistent dict. Works with both `requests.Response` and `httpx.Response`. Also callable as an instance method.
+Normalizes a response object or a caught exception into a consistent dict. Works with both `requests.Response` and `httpx2.Response`. Also callable as an instance method.
 
 ### `req.safe_call()`
 
@@ -135,7 +135,7 @@ result = req.safe_call(session.get, url, timeout=5)  # override per-call
 
 ## Backend comparison
 
-| Feature | `requests` (default) | `httpx` |
+| Feature | `requests` (default) | `httpx2` |
 |---|---|---|
 | Status-based retry | Yes (`status_forcelist`) | No |
 | Allowed methods config | Yes | No |
@@ -143,13 +143,13 @@ result = req.safe_call(session.get, url, timeout=5)  # override per-call
 | Default headers | Yes | Yes |
 | Thread-safe sessions | Yes | Yes |
 | HTTP/2 | No | Yes |
-| Async support | No | Yes (use `httpx.AsyncClient` directly) |
+| Async support | No | Yes (use `httpx2.AsyncClient` directly) |
 
 ## Alternatives
 
-This library is intentionally limited in scope — it provides a thin, thread-safe wrapper around `requests` or `httpx` with automatic retries and a normalized response dict. If you need more control:
+This library is intentionally limited in scope — it provides a thin, thread-safe wrapper around `requests` or `httpx2` with automatic retries and a normalized response dict. If you need more control:
 
-- [**httpx**](https://www.python-httpx.org) — modern HTTP client with async support and HTTP/2 built in; use directly if you don't need the session wrapper or normalized response shape
+- [**httpx2**](https://github.com/pydantic/httpx2) — modern HTTP client with async support and HTTP/2 built in, maintained by Pydantic as the successor to `httpx`; use directly if you don't need the session wrapper or normalized response shape
 - [**requests**](https://requests.readthedocs.io) — the underlying sync HTTP library; sufficient on its own for simple, single-threaded use
 - [**tenacity**](https://tenacity.readthedocs.io) — standalone retry library that wraps any function; more configurable than urllib3's built-in retry for complex retry strategies
 

@@ -1,11 +1,11 @@
 [project]
 name = "tha-req-runner"
-version = "0.2.9"
-description = "A Tabular Helper API library that wraps requests/httpx with thread-safe session reuse, automatic retries, and a normalized response dict."
+version = "0.3.0"
+description = "A Tabular Helper API library that wraps requests/httpx2 with thread-safe session reuse, automatic retries, and a normalized response dict."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["http", "requests", "httpx", "api", "retry", "session"]
+keywords = ["http", "requests", "httpx2", "api", "retry", "session"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -20,8 +20,8 @@ classifiers = [
 dependencies = ["requests>=2.31", "urllib3>=2.0"]
 
 [project.optional-dependencies]
-httpx = ["httpx>=0.27"]
-dev = ["pytest>=9.1.0", "ruff>=0.15.17", "mypy>=2.1.0", "deptry>=0.25.1", "pip-audit>=2.10.1", "pytest-cov>=7.1.0", "httpx>=0.27"]
+httpx2 = ["httpx2>=2.13"]
+dev = ["pytest>=9.1.0", "ruff>=0.15.17", "mypy>=2.1.0", "deptry>=0.25.1", "pip-audit>=2.10.1", "pytest-cov>=7.1.0", "httpx2>=2.13"]
 
 [project.urls]
 Homepage = "https://github.com/tha-guy-nate/tha-req-runner"
