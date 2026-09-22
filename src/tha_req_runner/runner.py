@@ -9,7 +9,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 try:
-    import httpx
+    import httpx2
 
     _HTTPX_AVAILABLE = True
 except ImportError:  # pragma: no cover
@@ -22,9 +22,9 @@ _DEFAULT_TIMEOUT = 30
 
 
 class ThaReq:
-    def __init__(self, *, backend: Literal["requests", "httpx"] = "requests") -> None:
-        if backend == "httpx" and not _HTTPX_AVAILABLE:
-            raise ImportError("httpx is not installed. Run: pip install tha-req-runner[httpx]")
+    def __init__(self, *, backend: Literal["requests", "httpx2"] = "requests") -> None:
+        if backend == "httpx2" and not _HTTPX_AVAILABLE:
+            raise ImportError("httpx2 is not installed. Run: pip install tha-req-runner[httpx2]")
         self._local = threading.local()
         self._backend = backend
 
@@ -53,8 +53,8 @@ class ThaReq:
                 if headers:
                     session.headers.update(headers)
             else:
-                transport = httpx.HTTPTransport(retries=_DEFAULT_RETRIES)
-                session = httpx.Client(transport=transport, headers=headers or {})
+                transport = httpx2.HTTPTransport(retries=_DEFAULT_RETRIES)
+                session = httpx2.Client(transport=transport, headers=headers or {})
             self._local.session = session
             self._local.timeout = timeout
         return self._local.session
@@ -84,7 +84,7 @@ class ThaReq:
         if isinstance(result, Exception):
             raw = getattr(result, "response", None)
             valid_types = (
-                (requests.Response, httpx.Response) if _HTTPX_AVAILABLE else (requests.Response,)
+                (requests.Response, httpx2.Response) if _HTTPX_AVAILABLE else (requests.Response,)
             )
             if not isinstance(raw, valid_types):
                 raw = None

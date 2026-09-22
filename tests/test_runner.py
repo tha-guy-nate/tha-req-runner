@@ -1,7 +1,7 @@
 import threading
 from unittest.mock import MagicMock
 
-import httpx
+import httpx2
 import pytest
 import requests
 
@@ -284,28 +284,28 @@ def test_reset_clears_timeout(req: ThaReq) -> None:
     assert req.timeout == 15
 
 
-# --- httpx backend ---
+# --- httpx2 backend ---
 
 
-def test_httpx_backend_raises_when_httpx_unavailable(monkeypatch) -> None:
+def test_httpx2_backend_raises_when_httpx2_unavailable(monkeypatch) -> None:
     monkeypatch.setattr(runner, "_HTTPX_AVAILABLE", False)
-    with pytest.raises(ImportError, match="httpx is not installed"):
-        ThaReq(backend="httpx")
+    with pytest.raises(ImportError, match="httpx2 is not installed"):
+        ThaReq(backend="httpx2")
 
 
-def test_httpx_backend_returns_client() -> None:
-    req = ThaReq(backend="httpx")
-    assert isinstance(req.get_session(), httpx.Client)
+def test_httpx2_backend_returns_client() -> None:
+    req = ThaReq(backend="httpx2")
+    assert isinstance(req.get_session(), httpx2.Client)
 
 
-def test_httpx_backend_same_instance_per_thread() -> None:
-    req = ThaReq(backend="httpx")
+def test_httpx2_backend_same_instance_per_thread() -> None:
+    req = ThaReq(backend="httpx2")
     assert req.get_session() is req.get_session()
 
 
-def test_httpx_backend_thread_local() -> None:
-    req = ThaReq(backend="httpx")
-    sessions: list[httpx.Client] = []
+def test_httpx2_backend_thread_local() -> None:
+    req = ThaReq(backend="httpx2")
+    sessions: list[httpx2.Client] = []
 
     def capture() -> None:
         sessions.append(req.get_session())
@@ -320,22 +320,22 @@ def test_httpx_backend_thread_local() -> None:
     assert sessions[0] is not sessions[1]
 
 
-def test_httpx_backend_default_headers() -> None:
-    req = ThaReq(backend="httpx")
+def test_httpx2_backend_default_headers() -> None:
+    req = ThaReq(backend="httpx2")
     client = req.get_session(headers={"Authorization": "Bearer tok"})
     assert client.headers["authorization"] == "Bearer tok"
 
 
-def test_httpx_backend_reset_session() -> None:
-    req = ThaReq(backend="httpx")
+def test_httpx2_backend_reset_session() -> None:
+    req = ThaReq(backend="httpx2")
     c1 = req.get_session()
     req.reset_session()
     c2 = req.get_session()
     assert c1 is not c2
 
 
-def test_httpx_parse_response_success() -> None:
-    resp = MagicMock(spec=httpx.Response)
+def test_httpx2_parse_response_success() -> None:
+    resp = MagicMock(spec=httpx2.Response)
     resp.status_code = 200
     resp.json.return_value = {"ok": True}
     result = ThaReq.parse_response(resp)
@@ -345,10 +345,10 @@ def test_httpx_parse_response_success() -> None:
     assert result["message"] is None
 
 
-def test_httpx_parse_response_exception_with_response() -> None:
-    raw = MagicMock(spec=httpx.Response)
+def test_httpx2_parse_response_exception_with_response() -> None:
+    raw = MagicMock(spec=httpx2.Response)
     raw.status_code = 403
-    exc = httpx.HTTPStatusError("403", request=MagicMock(), response=raw)
+    exc = httpx2.HTTPStatusError("403", request=MagicMock(), response=raw)
     result = ThaReq.parse_response(exc)
     assert result["status"] == "error"
     assert result["code"] == 403

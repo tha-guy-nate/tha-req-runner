@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-20
+### Changed
+- **Breaking**: replaced the `httpx` backend with `httpx2` (Pydantic's actively maintained successor — see their README for background on the handoff from the original `httpx` maintainer). The `httpx` optional extra is now `httpx2`; `ThaReq(backend=...)` now accepts `"httpx2"` instead of `"httpx"`. No repo in the `tha-*` family currently ships this backend in production, so this lands as a straight rename rather than a deprecation cycle.
+- Also resolves the `anyio` CVEs from 0.2.9 (unreleased) as a side effect — `httpx2` re-resolves its own `anyio` floor fresh rather than inheriting the old `httpx` pin.
+
 ## [0.2.8] - 2026-08-21
 ### Fixed
 - Re-locked transitive `pip` (pulled in via `deptry` -> `pip-api`) from `26.1.2` to `26.2.1`, resolving a known CVE (PYSEC-2026-3721) flagged by `pip-audit`.
