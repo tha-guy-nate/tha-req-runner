@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `__version__` is now read from the installed package metadata (`importlib.metadata`) instead of a hardcoded string, so `pyproject.toml` is the only place the version is bumped.
+
 ## [0.3.0] - 2026-09-22
 ### Changed
 - **Breaking**: replaced the `httpx` backend with `httpx2` (Pydantic's actively maintained successor — see their README for background on the handoff from the original `httpx` maintainer). The `httpx` optional extra is now `httpx2`; `ThaReq(backend=...)` now accepts `"httpx2"` instead of `"httpx"`. No repo in the `tha-*` family currently ships this backend in production, so this lands as a straight rename rather than a deprecation cycle.
