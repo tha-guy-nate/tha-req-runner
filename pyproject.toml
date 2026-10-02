@@ -1,6 +1,6 @@
 [project]
 name = "tha-req-runner"
-version = "0.3.0"
+version = "0.4.0"
 description = "A Tabular Helper API library that wraps requests/httpx2 with thread-safe session reuse, automatic retries, and a normalized response dict."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -17,11 +17,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Typing :: Typed",
 ]
-dependencies = ["requests>=2.31", "urllib3>=2.0"]
+dependencies = ["requests==2.34.2", "urllib3==2.8.0"]
 
 [project.optional-dependencies]
-httpx2 = ["httpx2>=2.13"]
-dev = ["pytest>=9.1.0", "ruff>=0.15.17", "mypy>=2.1.0", "deptry>=0.25.1", "pip-audit>=2.10.1", "pytest-cov>=7.1.0", "httpx2>=2.13"]
+httpx2 = ["httpx2==2.13.1"]
+dev = ["pytest==9.1.1", "ruff==0.16.10", "mypy==2.4.0", "deptry==0.25.1", "pip-audit==2.10.1", "pytest-cov==7.1.0", "httpx2==2.13.1"]
 
 [project.urls]
 Homepage = "https://github.com/tha-guy-nate/tha-req-runner"
@@ -37,6 +37,10 @@ packages = ["src/tha_req_runner"]
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
+# ruff 0.16 widened its default rule set; keep the previous defaults explicit.
+select = ["E4", "E7", "E9", "F"]
 
 [tool.mypy]
 strict = true
